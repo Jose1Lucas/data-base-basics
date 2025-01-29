@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL Highlight</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/monokai-sublime.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <pre><code class="language-sql">
+-- Tabela instrumento
+
+CREATE TABLE instrumento(
+  id_instrumento SERIAL PRIMARY KEY,
+  nome VARCHAR(24) NOT NULL,
+  preco FLOAT NOT NULL,
+  em_promocao BOOLEAN
+);
+
+-- Tabela vendedor
+
+CREATE TABLE vendedor(
+  id_vendedor SERIAL PRIMARY KEY,
+  nome VARCHAR(24) NOT NULL,
+  email VARCHAR NOT NULL,
+  telefone VARCHAR(24) NOT NULL,
+  data_admisao DATE NOT NULL
+);
+
+-- Inserir dados na tabela instrumento
+
+INSERT INTO instrumento 
+  (nome, preco, em_promocao)
+VALUES
+  ('Violão', 600.99, FALSE),
+  ('Sanfona', 999.99, TRUE),
+  ('Teclado', 2565.00, FALSE),
+  ('Chocalho', 49.99, FALSE),
+  ('Bateria', 3565.99, FALSE),
+  ('Flauta', 89.99, TRUE);
+
+SELECT * FROM instrumento;
+
+-- Inserir dados na tabela vendedor
+
+INSERT INTO vendedor 
+  (nome, email, telefone, data_admisao)
+VALUES
+  ('Yuri', 'luke@qualquercoisa.com', '40028922', '1999-11-22'),
+  ('Priscila', 'priscila@qualquercoisa.com', '40028922', '2001-01-15');
+
+-- Corrigir e-mail errado
+
+UPDATE vendedor
+SET email = 'yuri@qualquercoisa.com'
+WHERE nome = 'Yuri';
+
+SELECT * FROM vendedor;
+
+-- Consultas diversas
+
+SELECT nome, preco FROM instrumento;
+
+SELECT nome, preco FROM instrumento 
+WHERE (preco > 100 AND em_promocao = TRUE);
+
+SELECT nome, data_admisao FROM vendedor 
+WHERE (data_admisao = '2001-01-15');
+
+SELECT nome, email FROM vendedor;
+
+SELECT id_instrumento, nome FROM instrumento;
+
+SELECT nome, preco FROM instrumento 
+WHERE (preco < 100);
+
+SELECT nome FROM vendedor 
+WHERE (nome = 'patati');
+
+SELECT nome, preco, em_promocao FROM instrumento 
+WHERE (em_promocao = TRUE);
+    </code></pre>
+</body>
+</html>
