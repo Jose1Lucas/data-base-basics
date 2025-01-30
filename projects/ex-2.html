@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL Highlight</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/monokai-sublime.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+    <pre><code class="language-sql">
+      --- Tabelas criadas
+
+      CREATE table artista (
+      id SERIAL PRIMARY KEY,
+      nome VARCHAR(20) UNIQUE
+      );
+      
+      CREATE table musica (
+      id SERIAL PRIMARY KEY,
+      nome VARCHAR(30) NOT NULL
+      );
+      
+      create TABLE gravacao (
+      id SERIAL PRIMARY KEY,
+      duracao_seg INT NOT NULL
+      );
+      
+      --- Tabela deletada 
+      
+      DROP TABLE gravacao;
+      
+      --- Nova coluna na tabela 'musica'
+      
+      ALTER table musica
+        add COLUMN duracao_seg INT NOT NULL;
+          
+      --- Inserindo artistas na tabela 'artista'
+      
+      INSERT into artista (nome) VALUES
+        ('Louis Hector Berlioz'),
+          ('Ludwig van Beethoven'),
+          ('Jean Sibelius');
+          
+      SELECT * FROM artista
+      
+      --- Inserindo musicas na tabela 'musica'
+      
+      INSERT into musica (nome, duracao_seg) VALUES
+        ('Symphonie Fantastique, Op. 14', 570),
+          ('Symphony No. 5 in C minor', 435),
+          ('Finlandia, Op. 26', 540);
+          
+      SELECT * FROM musica
+      
+      ---- Alterando nome de uma musica e durac_seg
+      
+      UPDATE musica SET 
+      nome = 'Moonlight Sonata, Op. 27 No. 2'
+      WHERE duracao_seg = '435'
+      
+      UPDATE musica set 
+      duracao_seg = 360
+      WHERE duracao_seg = 435
+      
+      SELECT * FROM musica ORDER BY id;
+      
+      --- Inserindo chave estrangeira
+      
+      ALTER TABLE musica
+        ADD COLUMN fk_id_artista INT,
+          add CONSTRAINT fk_artista FOREIGN KEY (fk_id_artista)
+          REFERENCES artista(ID)
+          
+      --- Atualizando dados fkfk_id_artista
+      
+      UPDATE musica set 
+      fk_id_artista = 1
+      WHERE duracao_seg = 570
+      
+      UPDATE musica set 
+      fk_id_artista = 2
+      WHERE duracao_seg = 360
+      
+      UPDATE musica set 
+      fk_id_artista = 3
+      WHERE duracao_seg = 540
+      
+      --- Exclusão impossivel pois a chave estrangeira busca a integridade referencial
+      
+      DELETE from artista
+      where nome = 'Jean Sibelius'
+      
+      --- Alteramos constraint fk_artista para assim que excluir gerar um efeito dominó
+      
+      ALTER TABLE musica
+        DROP CONSTRAINT fk_artista
+      
+      ALTER TABLE musica
+        add CONSTRAINT fk_artista FOREIGN KEY (fk_id_artista)
+          REFERENCES artista(id)
+          on DELETE CASCADE
+          
+      --- Exclusão possivel
+      
+      DELETE from artista
+      where nome = 'Jean Sibelius'
+    </code></pre>
+</body>
+</html>
