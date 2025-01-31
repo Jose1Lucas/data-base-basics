@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostgreSQL Highlight</title>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/monokai-sublime.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <pre><code class="language-sql">
+    --- Tabela 1: disciplinas
+    CREATE TABLE disciplinas (
+        id_materia SERIAL PRIMARY KEY,
+        nome_materia VARCHAR(50) NOT NULL,
+        nome_professor VARCHAR(50) NOT NULL
+    );
+    
+    --- Tabela 2: alunos
+    CREATE TABLE alunos (
+        id_aluno SERIAL PRIMARY KEY,
+        nome_aluno VARCHAR(50) NOT NULL,
+        id_materia INT,
+        CONSTRAINT fk_materia FOREIGN KEY (id_materia)
+        REFERENCES disciplinas(id_materia)
+    );
+    
+    
+    --- Inserir dados das disciplinas
+    INSERT INTO disciplinas (nome_materia, nome_professor) VALUES
+    ('Matemática', 'João'),
+    ('Português', 'Maria'),
+    ('História', 'Fernanda'),
+    ('Geografia', 'Fernanda'),
+    ('Física', 'Ana'),
+    ('Química', 'Ana'),
+    ('Artes', 'Luiz'),
+    ('Educação emocional', 'Luiz'),
+    ('Estatística', 'João');
+    
+    --- Inserir dados dos alunos
+    INSERT INTO alunos (nome_aluno, id_materia) VALUES
+    ('João', 1),  
+    ('Maria', 2), 
+    ('Carlos', 3), 
+    ('João', 4), 
+    ('Fernanda', 5), 
+    ('João', 6), 
+    ('Ricardo', 7), 
+    ('José', 1),   
+    ('Lucia', 2),  
+    ('Lucas', 3), 
+    ('Sérgio');
+    
+    --- Visão geral
+    
+    SELECT * FROM alunos ORDER BY id_materia
+    
+    SELECT * FROM disciplinas
+    
+    --- Visão dos conjuntos
+    
+    --- Alunos que não cursam nenhuma matéria
+    
+    SELECT id_aluno, nome_aluno
+    FROM alunos
+    WHERE id_materia IS NULL;
+    
+    --- Materia que não é cursada por nenhum aluno
+    SELECT id_materia, nome_materia
+    FROM disciplinas
+    WHERE id_materia NOT IN (SELECT DISTINCT id_materia FROM alunos);
+    
+    --- Alunos que estão cursando matemática
+    
+    SELECT alunos.id_aluno, alunos.nome_aluno
+    FROM alunos
+    JOIN disciplinas ON alunos.id_materia = disciplinas.id_materia
+    WHERE disciplinas.id_materia = 1;
+    
+    --- Alunos que possuem o mesmo nome do professor e cursam a mesma materia dele
+    
+    SELECT alunos.id_aluno, alunos.nome_aluno, disciplinas.nome_professor
+    FROM alunos
+    JOIN disciplinas ON alunos.id_materia = disciplinas.id_materia
+    WHERE alunos.nome_aluno = disciplinas.nome_professor;
+    
+    --- Junção completa
+    
+    SELECT alunos.id_aluno, alunos.nome_aluno, disciplinas.id_materia, disciplinas.nome_materia, disciplinas.nome_professor
+    FROM alunos
+    FULL OUTER JOIN disciplinas 
+    ON alunos.id_materia = disciplinas.id_materia;
+    
+    
+    --- Junção que retorna alunos mesmo aqueles que não cursam matéria alguma (left)
+    
+    SELECT alunos.id_aluno, alunos.nome_aluno, disciplinas.nome_materia, disciplinas.nome_professor
+    FROM alunos
+    LEFT JOIN disciplinas 
+    ON alunos.id_materia = disciplinas.id_materia;
+    
+    --- Junção que retorna todas as disciplinas mesmo aquelas sem alunos (right)
+    
+    SELECT  alunos.nome_aluno, disciplinas.nome_materia, disciplinas.nome_professor
+    FROM alunos
+    RIGHT JOIN disciplinas 
+    ON alunos.id_materia = disciplinas.id_materia;
+    
+    </code></pre>
+
+  <p>TESTE AQUI:</p> <a href="https://sqliteonline.com/">SQL Lite Online</a>
+</body>
+
+</html>
