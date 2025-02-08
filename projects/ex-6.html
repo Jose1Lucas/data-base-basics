@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostgreSQL Highlight</title>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/monokai-sublime.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <pre><code class="language-sql">
+    -- Criando a tabela de produtos
+CREATE TABLE produtos (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    preco NUMERIC(10,2) NOT NULL
+);
+
+-- Criando a tabela de vendas
+CREATE TABLE vendas (
+    id SERIAL PRIMARY KEY,
+    produto_id INT REFERENCES produtos(id),
+    quantidade INT NOT NULL,
+    data_compra DATE NOT NULL
+);
+
+-- Criando a tabela para armazenar os relatórios
+CREATE TABLE relatorio_vendas_diario (
+    id SERIAL PRIMARY KEY,
+    data DATE NOT NULL,
+    produto_id INT REFERENCES produtos(id),
+    total_quantidade INT NOT NULL
+);
+
+-- Criando a procedure para gerar o relatório
+CREATE OR REPLACE PROCEDURE gerar_relatorio_diario(IN data_referencia DATE)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Removendo dados anteriores para evitar duplicação
+    DELETE FROM relatorio_vendas_diario WHERE data = data_referencia;
+    
+    -- Inserindo novos dados no relatório
+    INSERT INTO relatorio_vendas_diario (data, produto_id, total_quantidade)
+    SELECT 
+        data_referencia, 
+        produto_id, 
+        SUM(quantidade)
+    FROM vendas
+    WHERE data_compra = data_referencia
+    GROUP BY produto_id;
+END;
+$$;
+
+-- ALimentando tabela
+INSERT INTO produtos (nome, preco)
+VALUES 
+    ('Produto A', 10.50),
+    ('Produto B', 25.30),
+    ('Produto C', 15.75);
+
+
+-- Alimentando tabela
+INSERT INTO vendas (produto_id, quantidade, data_compra)
+VALUES 
+    (1, 5, '2025-02-08'),
+    (2, 3, '2025-02-08'),
+    (3, 7, '2025-02-08'),
+    (1, 2, '2025-02-08'),
+    (2, 4, '2025-02-08');
+
+-- Exemplo de chamada da procedure para gerar o relatório do dia 2025-02-08
+CALL gerar_relatorio_diario('2025-02-08');
+
+-- Exibir as informações sobre o total de vendas por produto para o dia solicitado
+SELECT * FROM relatorio_vendas_diario WHERE data = '2025-02-08';
+    </code></pre>
+
+  <p>TESTE AQUI:</p> <a href="https://sqliteonline.com/">SQL Lite Online</a>
+</body>
+
+</html>
