@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostgreSQL Highlight</title>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/monokai-sublime.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <pre><code class="language-sql">
+    -- Criar tabela de Elementos Químicos
+CREATE TABLE Elementos (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    simbolo VARCHAR(5) UNIQUE NOT NULL,
+    numero_atomico INT UNIQUE NOT NULL,
+    massa_atomica FLOAT NOT NULL
+);
+
+-- Criar tabela de Compostos Químicos
+CREATE TABLE Compostos (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    formula VARCHAR(50) UNIQUE NOT NULL
+);
+
+-- Criar tabela de Relação entre Elementos e Compostos
+CREATE TABLE Elementos_Compostos (
+    id SERIAL PRIMARY KEY,
+    elemento_id INT REFERENCES Elementos(id) ON DELETE CASCADE,
+    composto_id INT REFERENCES Compostos(id) ON DELETE CASCADE,
+    quantidade INT NOT NULL
+);
+
+-- Criar função para evitar exclusão de elementos químicos usados em compostos
+CREATE OR REPLACE FUNCTION impedir_delete_elemento() RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM Elementos_Compostos WHERE elemento_id = OLD.id) THEN
+        RAISE EXCEPTION 'Não é possível excluir um elemento que faz parte de um composto químico.';
+    END IF;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Criar trigger para a tabela Elementos
+CREATE TRIGGER trigger_impedir_delete_elemento
+BEFORE DELETE ON Elementos
+FOR EACH ROW EXECUTE FUNCTION impedir_delete_elemento();
+
+-- Inserir dados na tabela Elementos
+INSERT INTO Elementos (nome, simbolo, numero_atomico, massa_atomica) VALUES
+    ('Hidrogênio', 'H', 1, 1.008),
+    ('Oxigênio', 'O', 8, 15.999),
+    ('Carbono', 'C', 6, 12.011),
+    ('Nitrogênio', 'N', 7, 14.007);
+
+-- Inserir dados na tabela Compostos
+INSERT INTO Compostos (nome, formula) VALUES
+    ('Água', 'H2O'),
+    ('Dióxido de Carbono', 'CO2'),
+    ('Metano', 'CH4'),
+    ('Amoníaco', 'NH3');
+
+-- Inserir dados na tabela Elementos_Compostos
+INSERT INTO Elementos_Compostos (elemento_id, composto_id, quantidade) VALUES
+    (1, 1, 2), -- Hidrogênio na Água
+    (2, 1, 1), -- Oxigênio na Água
+    (2, 2, 2), -- Oxigênio no Dióxido de Carbono
+    (3, 2, 1), -- Carbono no Dióxido de Carbono
+    (3, 3, 1), -- Carbono no Metano
+    (1, 3, 4), -- Hidrogênio no Metano
+    (4, 4, 1), -- Nitrogênio no Amoníaco
+    (1, 4, 3); -- Hidrogênio no Amoníaco
+    
+-- Comando impossível de ser realizado (exclusão de um elemento presente em um composto)
+DELETE FROM Elementos WHERE id = 1;
+
+-- Comando possível de ser realizado (inserção de um novo elemento)
+INSERT INTO Elementos (nome, simbolo, numero_atomico, massa_atomica) VALUES ('Fósforo', 'P', 15, 30.974);  
+    </code></pre>
+
+  <p>TESTE AQUI:</p> <a href="https://sqliteonline.com/">SQL Lite Online</a>
+</body>
+
+</html>
