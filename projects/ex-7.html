@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostgreSQL Highlight</title>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/monokai-sublime.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <pre><code class="language-sql">
+    --DB da Galeria Projeto Integrador PROZ - Talento Cloud
+
+    CREATE TABLE Categorias (
+        id_categoria VARCHAR(2) NOT NULL,  -- Definindo o campo id_categoria com tipo VARCHAR de 2 caracteres
+        Nome VARCHAR(255) NOT NULL,  -- Definindo o campo Nome para armazenar o nome da categoria
+        PRIMARY KEY (id_categoria)  -- Adiciona chave primária para garantir unicidade de id_categoria
+    );
+    
+    INSERT INTO Categorias (id_categoria, Nome)
+    VALUES ('#1', 'Esculturas'),  -- Inserção de categorias com códigos e nomes
+           ('#2', 'Arquitetura'),
+           ('#3', 'Outros'),
+           ('#4', 'Galeria 2d');
+    
+    SELECT * FROM Categorias;  -- Exibe todas as categorias inseridas para verificação
+    
+    CREATE TABLE Elementos_3d (
+        id_elemento SERIAL PRIMARY KEY,  -- Definindo id_elemento como SERIAL para auto incremento
+        Nome VARCHAR(255) NOT NULL,  -- Definindo o nome do elemento como obrigatório
+        Origem VARCHAR(255),  -- Campo para armazenar a origem do elemento
+        Artificial BOOLEAN,  -- Campo para indicar se o elemento é artificial
+        id_categoria VARCHAR(2),  -- Chave estrangeira para vincular ao id_categoria da tabela Categorias
+        FOREIGN KEY (id_categoria) REFERENCES Categorias(id_categoria) ON DELETE CASCADE  -- Define chave estrangeira com cascata na exclusão
+    );
+    
+    CREATE TABLE Imagens_2d (
+        id_imagem SERIAL PRIMARY KEY,  -- Definindo id_imagem como SERIAL para auto incremento
+        Nome VARCHAR(255) NOT NULL,  -- Definindo o nome da imagem como obrigatório
+        Origem VARCHAR(255),  -- Campo para armazenar a origem da imagem
+        Artificial BOOLEAN,  -- Campo para indicar se a imagem é artificial
+        id_categoria VARCHAR(2),  -- Chave estrangeira para vincular ao id_categoria da tabela Categorias
+        FOREIGN KEY (id_categoria) REFERENCES Categorias(id_categoria) ON DELETE CASCADE  -- Define chave estrangeira com cascata na exclusão
+    );
+    
+    -- Inserindo dados na tabela Elementos_3d
+    INSERT INTO Elementos_3d (Nome, Origem, Artificial, id_categoria)
+    VALUES ('Loba Capitolina', 'Roma Antiga', TRUE, '#1'),
+           ('Ponte Romana', 'Roma Antiga', TRUE, '#2'),
+           ('Klinai', 'Grécia Antiga', TRUE, '#3'),
+           ('Meteora', 'Grécia Geográfica', FALSE, '#3'),
+           ('Ânforas', 'Grécia Antiga', TRUE, '#3');
+    
+    -- Inserindo dados na tabela Imagens_2d (Galeria 2d)
+    INSERT INTO Imagens_2d (Nome, Origem, Artificial, id_categoria)
+    VALUES ('Fotografia do Rio Tibre', 'Roma Geográfica', FALSE, '#4'),
+           ('Fotografia do desfiladeiro em Gaios', 'Grécia Geográfica', FALSE, '#4'),
+           ('Fotografia do por do sol na Grécia', 'Grécia Geográfica', FALSE, '#4'),
+           ('Fotografia da estátua de Nero', 'Roma Antiga', TRUE, '#4'),
+           ('Pintura clássica da Escola de Athenas', 'Renascimento moderno', TRUE, '#4');
+           
+    -- 1. Exibir todas as categorias
+    SELECT * FROM Categorias;
+    
+    -- 2. Exibir todos os elementos 3D da categoria 'Esculturas'
+    SELECT * FROM Elementos_3d
+    WHERE id_categoria = '#1';
+    
+    -- 3. Exibir todas as imagens 2D da categoria 'Galeria 2d'
+    SELECT * FROM Imagens_2d
+    WHERE id_categoria = '#4';
+    
+    -- 4. Exibir os elementos 3D que são artificiais
+    SELECT * FROM Elementos_3d
+    WHERE Artificial = TRUE;
+    
+    -- 5. Exibir as imagens 2D com origem 'Roma Antiga'
+    SELECT * FROM Imagens_2d
+    WHERE Origem = 'Roma Antiga';
+    
+    -- 6. Contar o número de elementos 3D por categoria
+    SELECT id_categoria, COUNT(*) 
+    FROM Elementos_3d
+    GROUP BY id_categoria;
+    
+    -- 7. Contar o número de imagens 2D por categoria
+    SELECT id_categoria, COUNT(*) 
+    FROM Imagens_2d
+    GROUP BY id_categoria;
+    
+    -- 8. Exibir todas as categorias com mais de 2 elementos 3D
+    SELECT id_categoria, COUNT(*) AS num_elementos
+    FROM Elementos_3d
+    GROUP BY id_categoria
+    HAVING COUNT(*) > 2;
+    
+    -- 9. Exibir todas as imagens 2D que são artificiais
+    SELECT * FROM Imagens_2d
+    WHERE Artificial = TRUE;
+    
+    -- 10. Exibir todos os elementos 3D que têm origem na 'Grécia Antiga'
+    SELECT * FROM Elementos_3d
+    WHERE Origem = 'Grécia Antiga';
+    
+    -- 11 Mostrar Grécia Geográfica de ambas as tabelas (Elementos 3D e Imagens 2D)
+    SELECT Nome,id_categoria FROM Elementos_3d WHERE Origem = 'Grécia Geográfica'
+    UNION
+    SELECT Nome,id_categoria FROM Imagens_2d WHERE Origem = 'Grécia Geográfica';
+    
+    -- 12 Exibir todos os elementos 3D e suas categorias (mesmo que não haja categoria correspondente)
+    SELECT Elementos_3d.Nome, Elementos_3d.Origem, Categorias.Nome AS Categoria
+    FROM Elementos_3d
+    LEFT JOIN Categorias ON Elementos_3d.id_categoria = Categorias.id_categoria;    
+    </code></pre>
+
+  <p>TESTE AQUI:</p> <a href="https://sqliteonline.com/">SQL Lite Online</a>
+</body>
+
+</html>
