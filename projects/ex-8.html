@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostgreSQL Highlight</title>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/monokai-sublime.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <pre><code class="language-sql">
+    -- Criar a tabela de clientes
+    CREATE TABLE clientes (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(100) NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        data_cadastro DATE NOT NULL
+    );
+    
+    -- Inserir alguns dados de exemplo
+    INSERT INTO clientes (nome, email, data_cadastro) VALUES
+        ('João Silva', 'joao@email.com', '2025-02-19'),
+        ('Maria Oliveira', 'maria@email.com', '2025-02-19'),
+        ('Carlos Santos', 'carlos@email.com', '2025-02-20');
+    
+    -- Criar a função para contar clientes cadastrados em um dia específico
+    CREATE OR REPLACE FUNCTION contar_clientes_por_dia(data_especifica DATE) 
+    RETURNS INT AS $$
+    DECLARE
+        total_clientes INT;
+    BEGIN
+        SELECT COUNT(*) INTO total_clientes
+        FROM clientes
+        WHERE data_cadastro = data_especifica;
+        
+        RETURN total_clientes;
+    END;
+    $$ LANGUAGE plpgsql;
+    
+    -- Exemplo de uso da função
+    SELECT contar_clientes_por_dia('2025-02-19');    
+    </code></pre>
+
+  <p>TESTE AQUI:</p> <a href="https://sqliteonline.com/">SQL Lite Online</a>
+</body>
+
+</html>
